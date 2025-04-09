@@ -21,7 +21,28 @@ simulation
 while printing information to the console
 
 ## Setting up the program
-...
+
+    Prerequisites:
+
+-Python 3.6 or higher
+-pip (python package manager)
+
+1. Clone the repository:
+-git clone [repository-url]
+cd cs424-securesim
+
+2. Install the required dependencies
+
+pip install -r requirements.txt
 
 ## Running the program
-..
+
+1. Navigate to the project directory:
+    
+    cd cs424-securesim
+
+2. Run the main program:
+    
+    python main.py
+
+    This program will start a temperature simulation that runs for 2000 seconds. You can monitor the temperature and change the rate in real-time. 
