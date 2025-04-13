@@ -2,6 +2,8 @@
 
 import threading
 import time
+import logging
+logger = logging.getLogger(__name__)
 
 class TC_Controller:
     def __init__(self, tc):
@@ -12,13 +14,13 @@ class TC_Controller:
         while self.running:
             temperature = self.tc.get_temperature()
             if temperature < self.tc.low_bound:
-                # print(f"DEBUG: Temp {temperature:.2f}°C < {self.tc.low_bound}°C, heating")
+                logger.debug(f"\tTemp {temperature:.2f}°C < {self.tc.low_bound}°C, heating")
                 self.tc.set_temp_change(0.5)
             elif temperature > self.tc.high_bound:
-                # print(f"DEBUG: Temp {temperature:.2f}°C > {self.tc.high_bound}°C, cooling")
+                logger.debug(f"\tTemp {temperature:.2f}°C > {self.tc.high_bound}°C, cooling")
                 self.tc.set_temp_change(-0.5)
             else:
-                # print(f"DEBUG: Temp {temperature:.2f}°C in range, stabilizing")
+                logger.debug(f"\tTemp {temperature:.2f}°C in range, stabilizing")
                 self.tc.set_temp_change(0.0)
             time.sleep(1)
 
