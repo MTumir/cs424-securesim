@@ -22,7 +22,7 @@ class FalseDataInjection:
             if new_bound > self.tc.high_bound:
                 new_bound = self.tc.high_bound
         
-        logger.warning(f'\t[Injection] {direction} low_bound from {self.tc.low_bound} to {new_bound}')
+        logger.warning(f'\t{direction} low_bound from {self.tc.low_bound} to {new_bound}')
         self.tc.low_bound = new_bound
 
     def activate(self):
