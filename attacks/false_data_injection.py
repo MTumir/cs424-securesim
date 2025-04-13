@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 
 import random
+import logging
+logger = logging.getLogger(__name__)
 
 class FalseDataInjection:
     def __init__(self, tc):
@@ -16,5 +18,5 @@ class FalseDataInjection:
             if new_bound > self.tc.high_bound:
                 new_bound = self.tc.high_bound
         
-        print(f'\t[Injection] {direction} low_bound from {self.tc.low_bound} to {new_bound}')
+        logger.warning(f'\t[Injection] {direction} low_bound from {self.tc.low_bound} to {new_bound}')
         self.tc.low_bound = new_bound
