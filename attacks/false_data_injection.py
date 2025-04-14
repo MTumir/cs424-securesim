@@ -12,13 +12,18 @@ class FalseDataInjection:
     def attack(self):        
         if not self.active:
             return
+        
+        adjust = round(random.random(), 1)
+        while (adjust == 0.0):
+            adjust = round(random.random(), 1)
+        logger.debug(f'\tAdjusting low_bound by {adjust}')
 
         if (bool(random.getrandbits(1))):
             direction = "Decreasing"
-            new_bound = round(self.tc.low_bound - random.random(), 1)
+            new_bound = round(self.tc.low_bound - adjust, 1)
         else:
             direction = "Increasing"
-            new_bound = round(self.tc.low_bound + random.random(), 1)
+            new_bound = round(self.tc.low_bound + adjust, 1)
             if new_bound > self.tc.high_bound:
                 new_bound = self.tc.high_bound
         
