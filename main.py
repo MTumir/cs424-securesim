@@ -8,6 +8,7 @@ logger = logging.getLogger(__name__)
 from process_sim.temperature_control import TemperatureControl
 from control_logic.tc_controller import TC_Controller
 from attacks.false_data_injection import FalseDataInjection
+from attacks.ddos_attack import DDoSAttack
 
 def main():
     parser = argparse.ArgumentParser()
@@ -25,14 +26,14 @@ def main():
     tc = TemperatureControl(low_bound=40.0, high_bound=50.0)
     controller = TC_Controller(tc)
     injection = FalseDataInjection(tc)
+    dos = DDoSAttack(tc)
 
     if (args.injection == 1):
         injection.activate()
-    # if (args.dos == 1):
-    #     dos.activate()
+    if (args.dos == 1):
+        dos.activate()
     # if (args.replay == 1):
     #     replay.activate()
-
 
     tc.start_simulation()
     controller.start_control()
@@ -44,8 +45,8 @@ def main():
             # Execute attacks randomly
             if (randint % 2 == 0):
                 injection.attack()
-            # if (randint >= 5):
-            #     dos.attack()
+            if (randint >= 5):
+                dos.attack()
             # if (randint <= 6):
             #     replay.attack()
 
