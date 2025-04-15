@@ -35,3 +35,6 @@ class ReplayAttack:
     def activate(self):
         self.active = True
         logger.info(f'\tReplay Attack activated')
+
+    def deactivate(self):
+        self.active = False

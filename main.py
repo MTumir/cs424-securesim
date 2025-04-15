@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 from process_sim.temperature_control import TemperatureControl
 from control_logic.tc_controller import TC_Controller
 from attacks.false_data_injection import FalseDataInjection
-from attacks.ddos_attack import DDoSAttack
+from attacks.dos_attack import DoSAttack
 
 def main():
     parser = argparse.ArgumentParser()
@@ -29,7 +29,7 @@ def main():
     tc = TemperatureControl(low_bound=40.0, high_bound=50.0)
     controller = TC_Controller(tc)
     injection = FalseDataInjection(tc)
-    dos = DDoSAttack(tc)
+    dos = DoSAttack(tc)
     replay = ReplayAttack(tc)
 
     if (args.injection == 1):

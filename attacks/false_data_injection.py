@@ -32,3 +32,6 @@ class FalseDataInjection:
 
     def activate(self):
         self.active = True
+
+    def deactivate(self):
+        self.active = False
