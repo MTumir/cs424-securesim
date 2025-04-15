@@ -6,7 +6,7 @@ from logging import getLogger
 
 logger = getLogger(__name__)
 
-class DDoSAttack:
+class DoSAttack:
     def __init__(self, tc):
         self.active = False
         self.tc = tc
@@ -39,3 +39,6 @@ class DDoSAttack:
     def activate(self):
         self.active = True
         logger.info(f'\tDDoS attack activated')
+
+    def deactivate(self):
+        self.active = False
