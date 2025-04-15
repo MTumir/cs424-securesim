@@ -22,9 +22,9 @@ def main():
     
     args = parser.parse_args()
     if (args.debug == 0):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
     else:
-        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(filename)s - %(levelname)s - %(message)s')
 
     tc = TemperatureControl(low_bound=40.0, high_bound=50.0)
     controller = TC_Controller(tc)
