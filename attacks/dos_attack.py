@@ -38,7 +38,7 @@ class DoSAttack:
         
     def activate(self):
         self.active = True
-        logger.info(f'\tDDoS attack activated')
+        logger.info(f'\tDoS attack activated')
 
     def deactivate(self):
         self.active = False
