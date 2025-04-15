@@ -3,6 +3,8 @@
 import threading
 import time
 import random
+import logging
+logger = logging.getLogger(__name__)
 
 class TemperatureControl:
     def __init__(self, low_bound, high_bound):
@@ -18,6 +20,7 @@ class TemperatureControl:
             noise = random.uniform(-0.1, 0.1)
             self.temperature += self.natural_drift + self.temp_change + noise
             self.temperature = max(0.0, min(100.0, self.temperature))
+            logger.debug(f'low_bound = {self.low_bound}')
             time.sleep(1)
 
     def start_simulation(self):
