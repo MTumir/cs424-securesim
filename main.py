@@ -4,6 +4,9 @@ import time
 import random
 import argparse
 import logging
+
+from attacks.replay_attack import ReplayAttack
+
 logger = logging.getLogger(__name__)
 from process_sim.temperature_control import TemperatureControl
 from control_logic.tc_controller import TC_Controller
@@ -27,13 +30,14 @@ def main():
     controller = TC_Controller(tc)
     injection = FalseDataInjection(tc)
     dos = DDoSAttack(tc)
+    replay = ReplayAttack(tc)
 
     if (args.injection == 1):
         injection.activate()
     if (args.dos == 1):
         dos.activate()
-    # if (args.replay == 1):
-    #     replay.activate()
+    if (args.replay == 1):
+        replay.activate()
 
     tc.start_simulation()
     controller.start_control()
@@ -47,8 +51,8 @@ def main():
                 injection.attack()
             if (randint >= 5):
                 dos.attack()
-            # if (randint <= 6):
-            #     replay.attack()
+            if (randint <= 6):
+                 replay.attack()
 
             temp = tc.get_temperature()
             logger.info(f"\tTemperature: {temp:.2f}°C | Change Rate: {tc.temp_change:.2f}°C/s")
