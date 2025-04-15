@@ -16,7 +16,7 @@ class FalseDataInjection:
         adjust = round(random.random(), 1)
         while (adjust == 0.0):
             adjust = round(random.random(), 1)
-        logger.debug(f'\tAdjusting low_bound by {adjust}')
+        logger.debug(f'Adjusting low_bound by {adjust}')
 
         if (bool(random.getrandbits(1))):
             direction = "Decreasing"
@@ -27,7 +27,7 @@ class FalseDataInjection:
             if new_bound > self.tc.high_bound:
                 new_bound = self.tc.high_bound
         
-        logger.warning(f'\t{direction} low_bound from {self.tc.low_bound} to {new_bound}')
+        logger.warning(f'{direction} low_bound from {self.tc.low_bound} to {new_bound}')
         self.tc.low_bound = new_bound
 
     def activate(self):

@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import random
+import time
 import logging
 from logging import getLogger
 
@@ -17,28 +18,32 @@ class DoSAttack:
         if not self.active:
             return
         #incoming requests
-        requests = random.randint(10, 50) # Random number of requests per attack cycle 
+        requests = random.randint(100, 300) # Random number of requests per attack cycle 
         self.request_count += requests
 
         # Log the attack
-        logger.warning(f'\tSending {requests} requests to system')
+        logger.warning(f'Sending {requests} requests to system')
 
         # Simulate the system overload
         if self.request_count > self.max_requests:
-            logger.critical(f'\tSystem overloaded with {self.request_count} requests')
+            logger.critical(f'System overloaded with {self.request_count} requests')
         #simulate response time increase due to overload from requests
-            self.tc.response_time = max(0.1, self.tc.response_time * 1.1)
-            logger.warning(f'\tResponse time increased to {self.tc.response_time:.2f}s')
+            time.sleep(0.003 * self.request_count)
+            if random.random() < 0.3:
+                self.clearRequestCount()
 
 
-        #reset request count 
+        #randomly reset request count 
         if random.random() < 0.1:
-            self.request_count = 0
-            logger.info(f'\tRequest count reset')
+            self.clearRequestCount()
+
+    def clearRequestCount(self):
+        self.request_count = 0
+        logger.info(f'Request count reset')
         
     def activate(self):
         self.active = True
-        logger.info(f'\tDoS attack activated')
+        logger.info(f'DoS attack activated')
 
     def deactivate(self):
         self.active = False

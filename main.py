@@ -22,9 +22,9 @@ def main():
     
     args = parser.parse_args()
     if (args.debug == 0):
-        logging.basicConfig(level=logging.INFO)
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
     tc = TemperatureControl(low_bound=40.0, high_bound=50.0)
     controller = TC_Controller(tc)
@@ -55,7 +55,7 @@ def main():
                  replay.attack()
 
             temp = tc.get_temperature()
-            logger.info(f"\tTemperature: {temp:.2f}°C | Change Rate: {tc.temp_change:.2f}°C/s")
+            logger.info(f"Temperature: {temp:.2f}°C | Change Rate: {tc.temp_change:.2f}°C/s")
             time.sleep(1)
     except KeyboardInterrupt:
         print("Stopping simulation...")

@@ -14,13 +14,13 @@ class TC_Controller:
         while self.running:
             temperature = self.tc.get_temperature()
             if temperature < self.tc.low_bound:
-                logger.debug(f"\tTemp {temperature:.2f}°C < {self.tc.low_bound}°C, heating")
+                logger.debug(f"Temp {temperature:.2f}°C < {self.tc.low_bound}°C, heating")
                 self.tc.set_temp_change(0.5)
             elif temperature > self.tc.high_bound:
-                logger.debug(f"\tTemp {temperature:.2f}°C > {self.tc.high_bound}°C, cooling")
+                logger.debug(f"Temp {temperature:.2f}°C > {self.tc.high_bound}°C, cooling")
                 self.tc.set_temp_change(-0.5)
             else:
-                logger.debug(f"\tTemp {temperature:.2f}°C in range, stabilizing")
+                logger.debug(f"Temp {temperature:.2f}°C in range, stabilizing")
                 self.tc.set_temp_change(0.0)
             time.sleep(1)
 

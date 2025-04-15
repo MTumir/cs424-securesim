@@ -21,20 +21,20 @@ class ReplayAttack:
         msg = f'{timestamp}:{data}'
 
         #Initial message
-        logger.debug(f'\tOriginal System Message: {msg}')
+        logger.debug(f'Original System Message: {msg}')
         print(f'{msg}')
         time.sleep(delay)
 
         #Attacker captures and resends the message
-        logger.debug(f'\tAttacker captures message: {msg}')
+        logger.debug(f'Attacker captures message: {msg}')
         time.sleep(delay)
-        logger.debug(f'\tAttacker resends message: {msg}')
+        logger.debug(f'Attacker resends message: {msg}')
         print(f'{msg}')
 
 
     def activate(self):
         self.active = True
-        logger.info(f'\tReplay Attack activated')
+        logger.info(f'Replay Attack activated')
 
     def deactivate(self):
         self.active = False
