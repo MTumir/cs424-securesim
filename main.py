@@ -15,10 +15,10 @@ from attacks.dos_attack import DoSAttack
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--debug', '-de', help='0=no debug messages, 1=debug messages', type=int, default=0)
-    parser.add_argument('--injection', '-i', help='1=activate injection attacks', type=int, default=0)
-    parser.add_argument('--dos', '-d', help='1=activate DoS attacks', type=int, default=0)
-    parser.add_argument('--replay', '-r', help='1=activate replay attacks', type=int, default=0)
+    parser.add_argument('--debug', '-de', help='0=no debug messages, 1=debug messages', action='store_true')
+    parser.add_argument('--injection', '-i', help='1=activate injection attacks', action='store_true')
+    parser.add_argument('--dos', '-d', help='1=activate DoS attacks', action='store_true')
+    parser.add_argument('--replay', '-r', help='1=activate replay attacks', action='store_true')
     
     args = parser.parse_args()
     if (args.debug == 0):
