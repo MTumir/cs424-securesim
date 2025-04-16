@@ -9,12 +9,16 @@ class ReplayAttack:
     def __init__(self, tc):
         self.active = False
         self.tc = tc
-        self.data = round(self.tc.temperature, 2)
+        self.data = 0.0
         self.delay = randint(1,5)
 
     def attack(self):
         if not self.active:
             return
+
+        # Grab new data if none is held
+        if (self.data == 0.0):
+            self.data = round(self.tc.temperature, 2)
 
         # Debug statement stating data and remaining delay
         logger.debug(f'Attacker has temperature: {self.data}, delay is {self.delay}')
@@ -26,6 +30,7 @@ class ReplayAttack:
         else:
             logger.info(f'Changing temperature to: {self.data}')
             self.tc.temperature = self.data
+            self.data = 0.0
             self.delay = randint(1,5)
 
     def activate(self):
