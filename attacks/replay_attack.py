@@ -1,7 +1,5 @@
 import logging
-import threading
-import time
-from random import random, randint
+from random import randint
 
 from process_sim.temperature_control import TemperatureControl
 
@@ -11,29 +9,24 @@ class ReplayAttack:
     def __init__(self, tc):
         self.active = False
         self.tc = tc
+        self.data = round(self.tc.temperature, 2)
+        self.delay = randint(1,5)
 
     def attack(self):
         if not self.active:
             return
 
-        #initial setup variables
-        data = self.tc.temperature
-        delay = randint(1, 10)
+        # Debug statement stating data and remaining delay
+        logger.debug(f'Attacker has temperature: {self.data}, delay is {self.delay}')
 
-        #creates a new message for each iteration
-        timestamp = str(time.time())
-        msg = f'{data} at {timestamp}'
-
-        logger.debug(f'Current Temperature is: {msg}')
-
-        #Captures temperature and sets temperature to the captured value
-        logger.debug(f'Attacker captures message: {msg}')
-
-        start_time = time.perf_counter()
-        while time.perf_counter() - start_time < delay:
-            pass
-        logger.info(f'Changing temperature to: {msg}')
-        self.tc.temperature = data
+        # If delay isn't up, decrement delay
+        if (self.delay != 0):
+            self.delay -= 1
+        # Otherwise overwrite temperature with stored data
+        else:
+            logger.info(f'Changing temperature to: {self.data}')
+            self.tc.temperature = self.data
+            self.delay = randint(1,5)
 
     def activate(self):
         self.active = True
