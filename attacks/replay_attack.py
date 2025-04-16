@@ -1,5 +1,9 @@
 import logging
+import threading
 import time
+from random import random, randint
+
+from process_sim.temperature_control import TemperatureControl
 
 logger = logging.getLogger(__name__)
 
@@ -13,24 +17,23 @@ class ReplayAttack:
             return
 
         #initial setup variables
-        data = 'Initiating cooling cycle'
-        delay = 2
+        data = self.tc.temperature
+        delay = randint(1, 10)
 
         #creates a new message for each iteration
         timestamp = str(time.time())
-        msg = f'{timestamp}:{data}'
+        msg = f'{data} at {timestamp}'
 
-        #Initial message
-        logger.debug(f'Original System Message: {msg}')
-        print(f'{msg}')
-        time.sleep(delay)
+        logger.debug(f'Current Temperature is: {msg}')
 
-        #Attacker captures and resends the message
+        #Captures temperature and sets temperature to the captured value
         logger.debug(f'Attacker captures message: {msg}')
-        time.sleep(delay)
-        logger.debug(f'Attacker resends message: {msg}')
-        print(f'{msg}')
 
+        start_time = time.perf_counter()
+        while time.perf_counter() - start_time < delay:
+            pass
+        logger.info(f'Changing temperature to: {msg}')
+        self.tc.temperature = data
 
     def activate(self):
         self.active = True
