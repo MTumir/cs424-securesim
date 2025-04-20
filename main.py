@@ -10,9 +10,9 @@ from attacks.replay_attack import ReplayAttack
 logger = logging.getLogger(__name__)
 from process_sim.temperature_control import TemperatureControl
 from control_logic.tc_controller import TC_Controller
-from defenses.log_and_audit import LogAndAudit
 from attacks.false_data_injection import FalseDataInjection
 from attacks.dos_attack import DoSAttack
+from defenses.log_and_audit import LogAndAudit
 
 def main():
     parser = argparse.ArgumentParser()
@@ -38,6 +38,8 @@ def main():
     replay = ReplayAttack(tc)
 
     log = LogAndAudit(tc)
+    # anomaly = namehere(tc)
+    # auth = namehere(tc)
 
     if (args.injection == 1):
         injection.activate()
