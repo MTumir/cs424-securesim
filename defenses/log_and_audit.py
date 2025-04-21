@@ -8,7 +8,7 @@ class LogAndAudit:
         self.handler = None
 
     def activate(self):
-        self.handler = logging.FileHandler('temperature_control.log', mode='w')
+        self.handler = logging.FileHandler('data/temperature_control.log', mode='w')
         self.handler.setFormatter(logging.getLogger().handlers[0].formatter)
         logging.getLogger().addHandler(self.handler)
 
