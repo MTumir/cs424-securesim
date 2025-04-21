@@ -1,0 +1,9 @@
+2025-04-21 11:33:11,637 - log_and_audit.py - INFO - Logging defense activated
+2025-04-21 11:33:11,638 - main.py - INFO - Temperature: 34.74°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:12,639 - main.py - INFO - Temperature: 34.98°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:13,640 - main.py - INFO - Temperature: 35.38°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:14,641 - main.py - INFO - Temperature: 35.76°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:15,642 - main.py - INFO - Temperature: 36.15°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:16,643 - main.py - INFO - Temperature: 36.48°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:17,644 - main.py - INFO - Temperature: 36.72°C | Change Rate: 0.50°C/s
+2025-04-21 11:33:18,645 - main.py - INFO - Temperature: 37.02°C | Change Rate: 0.50°C/s
