@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureSim SCADA Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+        }
+        .sidebar {
+            background: #1a202c;
+            transition: all 0.3s ease;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4a5568;
+            transition: 0.4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #00ffaa;
+        }
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        .card {
+            background: #2d3748;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+        }
+        #temp_plot {
+            border: 2px solid rgba(0, 255, 170, 0.2);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 255, 170, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-100">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div class="sidebar w-64 h-screen fixed p-6">
+            <h1 class="text-2xl font-bold text-white mb-8">SecureSim</h1>
+            <nav>
+                <a href="/" class="block py-2 px-4 text-white bg-gray-700 rounded-lg mb-2">Dashboard</a>
+                <a href="#logs" class="block py-2 px-4 text-gray-300 hover:text-white hover:bg-gray-600 rounded-lg">Logs</a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="ml-64 p-8 w-full">
+            <h1 class="text-4xl font-bold mb-8 text-center">SCADA Dashboard</h1>
+
+            <!-- System Status -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-white">System Status</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-sm text-gray-300">Temperature</p>
+                        <p class="text-xl font-bold text-white"><span id="temperature">0.00</span>°C</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-sm text-gray-300">Change Rate</p>
+                        <p class="text-xl font-bold text-white"><span id="change_rate">0.00</span>°C/s</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-sm text-gray-300">Low Bound</p>
+                        <p class="text-xl font-bold text-white"><span id="low_bound">40.0</span>°C</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-sm text-gray-300">High Bound</p>
+                        <p class="text-xl font-bold text-white"><span id="high_bound">50.0</span>°C</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperature Plot -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Temperature Over Time</h2>
+                <div id="temp_plot" class="w-full h-[500px]"></div>
+            </div>
+
+            <!-- Attack Controls -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Attack Controls</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="flex items-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="injection_toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ml-3 text-gray-200">False Data Injection</span>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="dos_toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ml-3 text-gray-200">DoS Attack</span>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="replay_toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ml-3 text-gray-200">Replay Attack</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Defense Controls -->
+            <div class="card p-6 mb-8">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Defense Controls</h2>
+                <div class="flex items-center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="logging_toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="ml-3 text-gray-200">Logging & Auditing</span>
+                </div>
+            </div>
+
+            <!-- Log Viewer -->
+            <div class="card p-6 mb-8" id="logs">
+                <h2 class="text-2xl font-semibold mb-4 text-white">System Logs</h2>
+                <div id="log_viewer" class="h-64 overflow-y-auto bg-gray-700 p-4 rounded-lg text-gray-200 text-sm"></div>
+            </div>
+
+            <!-- Team Members -->
+            <div class="card p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Team Members</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium text-white">Max Tumir</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium text-white">Munib Ahmed</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium text-white">Brandon Nanhthanong</p>
+                    </div>
+                    <div class="bg-gray-700 p-4 rounded-lg">
+                        <p class="text-lg font-medium text-white">Jackson Price</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        let temperatures = [];
+        let times = [];
+        let low_bounds = [];
+        let high_bounds = [];
+        const maxPoints = 100;
+
+        // Initialize Plotly
+        const plotDiv = document.getElementById('temp_plot');
+        Plotly.newPlot(plotDiv, [
+            {
+                x: times,
+                y: temperatures,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Temperature',
+                line: { color: '#00ffaa', width: 3, shape: 'spline' },
+                fill: 'tozeroy',
+                fillcolor: 'rgba(0, 255, 170, 0.3)',
+                hovertemplate: '%{y:.2f}°C<br>%{x}<extra></extra>'
+            },
+            {
+                x: times,
+                y: low_bounds,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Low Bound',
+                line: { color: '#ff5555', width: 2, dash: 'dash' },
+                hoverinfo: 'skip'
+            },
+            {
+                x: times,
+                y: high_bounds,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'High Bound',
+                line: { color: '#5555ff', width: 2, dash: 'dash' },
+                hoverinfo: 'skip'
+            }
+        ], {
+            title: {
+                text: 'Temperature Over Time (°C)',
+                font: { size: 24, family: 'Inter, sans-serif', color: '#ffffff' }
+            },
+            xaxis: {
+                title: 'Time',
+                titlefont: { size: 16, color: '#ffffff' },
+                tickfont: { size: 14, color: '#ffffff' },
+                gridcolor: 'rgba(255, 255, 255, 0.2)',
+                zerolinecolor: 'rgba(255, 255, 255, 0.2)'
+            },
+            yaxis: {
+                title: 'Temperature (°C)',
+                titlefont: { size: 16, color: '#ffffff' },
+                tickfont: { size: 14, color: '#ffffff' },
+                range: [0, 100],
+                gridcolor: 'rgba(255, 255, 255, 0.2)',
+                zerolinecolor: 'rgba(255, 255, 255, 0.2)'
+            },
+            plot_bgcolor: '#1a202c',
+            paper_bgcolor: '#1a202c',
+            font: { color: '#ffffff' },
+            showlegend: true,
+            legend: {
+                x: 1,
+                y: 1,
+                xanchor: 'right',
+                yanchor: 'top',
+                bgcolor: 'rgba(0, 0, 0, 0.5)',
+                font: { color: '#ffffff' }
+            },
+            margin: { t: 80, b: 80, l: 80, r: 80 },
+            hovermode: 'closest',
+            shapes: [
+                {
+                    type: 'rect',
+                    xref: 'paper',
+                    yref: 'y',
+                    x0: 0,
+                    x1: 1,
+                    y0: 40,
+                    y1: 50,
+                    fillcolor: 'rgba(0, 255, 0, 0.1)',
+                    line: { width: 0 },
+                    layer: 'below'
+                }
+            ]
+        });
+
+        // Update status and plot
+        socket.on('temperature_update', (data) => {
+            document.getElementById('temperature').textContent = data.temperature.toFixed(2);
+            document.getElementById('change_rate').textContent = data.change_rate.toFixed(2);
+            document.getElementById('low_bound').textContent = data.low_bound.toFixed(1);
+            document.getElementById('high_bound').textContent = data.high_bound.toFixed(1);
+
+            const now = new Date().toLocaleTimeString();
+            temperatures.push(data.temperature);
+            times.push(now);
+            low_bounds.push(data.low_bound);
+            high_bounds.push(data.high_bound);
+
+            if (temperatures.length > maxPoints) {
+                temperatures.shift();
+                times.shift();
+                low_bounds.shift();
+                high_bounds.shift();
+            }
+
+            Plotly.update(plotDiv, {
+                x: [times, times, times],
+                y: [temperatures, low_bounds, high_bounds]
+            }, {
+                shapes: [
+                    {
+                        type: 'rect',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        x1: 1,
+                        y0: data.low_bound,
+                        y1: data.high_bound,
+                        fillcolor: 'rgba(0, 255, 0, 0.1)',
+                        line: { width: 0 },
+                        layer: 'below'
+                    }
+                ]
+            });
+        });
+
+        // Update logs
+        socket.on('log_update', (data) => {
+            const logViewer = document.getElementById('log_viewer');
+            const logEntry = document.createElement('p');
+            logEntry.textContent = data.log;
+            logEntry.className = 'mb-1';
+            logViewer.appendChild(logEntry);
+            logViewer.scrollTop = logViewer.scrollHeight;
+        });
+
+        // Fetch initial status
+        fetch('/status')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('injection_toggle').checked = data.injection_active;
+                document.getElementById('dos_toggle').checked = data.dos_active;
+                document.getElementById('replay_toggle').checked = data.replay_active;
+                document.getElementById('logging_toggle').checked = data.logging_active;
+            });
+
+        // Toggle attacks
+        function toggleAttack(attackType, element) {
+            fetch('/toggle_attack', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ attack_type: attackType, state: element.checked })
+            });
+        }
+
+        // Toggle defenses
+        function toggleDefense(defenseType, element) {
+            fetch('/toggle_defense', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ defense_type: defenseType, state: element.checked })
+            });
+        }
+
+        document.getElementById('injection_toggle').addEventListener('change', (e) => toggleAttack('injection', e.target));
+        document.getElementById('dos_toggle').addEventListener('change', (e) => toggleAttack('dos', e.target));
+        document.getElementById('replay_toggle').addEventListener('change', (e) => toggleAttack('replay', e.target));
+        document.getElementById('logging_toggle').addEventListener('change', (e) => toggleDefense('logging', e.target));
+    </script>
+</body>
+</html>
