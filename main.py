@@ -105,6 +105,7 @@ from defenses.command_authentication import CommandAuthentication
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 logger = logging.getLogger(__name__)
+current_user = 'admin' #Default user
 
 # Shared simulation objects
 tc = TemperatureControl(low_bound=40.0, high_bound=50.0)
@@ -145,13 +146,18 @@ def simulation_thread():
     try:
         for _ in range(2000):
             randint = random.randint(1, 10)
-            # Execute attacks randomly
-            if randint % 2 == 0:
-                injection.attack()
-            if randint >= 5:
-                dos.attack()
-            if randint <= 6:
-                replay.attack()
+
+            if not auth_defense.active or auth_defense.authenticate_command(current_user):
+                # Execute attacks randomly
+                if randint % 2 == 0:
+                    injection.attack()
+                if randint >= 5:
+                    dos.attack()
+                if randint <= 6:
+                    replay.attack()
+            # else:
+            #     logger.warning(f"Attack attempted by unauthorized user '{current_user}' - BLOCKED")        
+
             temp = tc.get_temperature()
             socketio.emit('temperature_update', {
                 'temperature': round(temp, 2),
@@ -186,6 +192,11 @@ def status():
 
 @app.route('/toggle_attack', methods=['POST'])
 def toggle_attack():
+
+    if auth_defense.active and not auth_defense.authenticate_command(current_user):
+        logger.warning(f"unauthorized attack toggle attempt")
+        return jsonify({'status': 'error', 'message': 'Unauthorized user cannot toggle attacks'})
+
     attack_type = request.json.get('attack_type')
     state = request.json.get('state')
     if attack_type == 'injection':
@@ -204,7 +215,7 @@ def toggle_defense():
     if defense_type == 'logging':
         log_defense.activate() if state else log_defense.deactivate()
     elif defense_type == 'authentication':
-        auth.defense.activate() if state else auth_defense.deactivate()
+        auth_defense.activate() if state else auth_defense.deactivate()
     logger.info(f"{defense_type} defense {'activated' if state else 'deactivated'}")
     return jsonify({'status': 'success'})
 
@@ -229,6 +240,12 @@ def main():
     
     # Set up logging
     setup_logging(args.debug)
+
+    global current_user
+    if args.authentication2:
+        current_user = 'intruder'
+    else:
+        current_user = 'admin'
 
     # Activate attacks based on args
     if args.injection:
@@ -272,11 +289,17 @@ def demo_command_authentication(user=None):
         users = ['admin', 'intruder']
     else:
         users = [user]
-    for user in users:
-        if auth_defense.authenticate_command(user):
-            print(f"User '{user}': Authorized (command allowed)")
+    
+    for test_user in users:
+        if auth_defense.authenticate_command(test_user):
+            print(f"User '{test_user}': Authorized (command allowed)")
         else:
-            print(f"User '{user}': Unauthorized (command blocked)") 
+            print(f"User '{test_user}': Unauthorized (command blocked)")
+            
+    #  display current user status
+    print(f"\nCurrent user: '{current_user}'")
+    auth_result = auth_defense.authenticate_command(current_user)
+    print(f"Attack commands: {'ALLOWED' if auth_result else 'BLOCKED'}")
 
 if __name__ == "__main__":
     main()
