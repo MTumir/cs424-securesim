@@ -19,11 +19,11 @@ class FalseDataInjection:
             adjust = round(random.random(), 1)
         logger.debug(f'Adjusting low_bound by {adjust}')
 
-        # 50% chance to decrease low_bound by previous value
+        # 50% chance to decrease low_bound by adjust
         if (bool(random.getrandbits(1))):
             direction = "Decreasing"
             new_bound = round(self.tc.low_bound - adjust, 1)
-        # 50% chance to increase low_bound by previous value
+        # 50% chance to increase low_bound by adjust
         else:
             direction = "Increasing"
             new_bound = round(self.tc.low_bound + adjust, 1)
@@ -36,6 +36,7 @@ class FalseDataInjection:
 
     def activate(self):
         self.active = True
+        logger.info(f'False data injection attack activated')
 
     def deactivate(self):
         self.active = False
