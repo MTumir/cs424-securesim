@@ -99,6 +99,8 @@ from attacks.false_data_injection import FalseDataInjection
 from attacks.dos_attack import DoSAttack
 from attacks.replay_attack import ReplayAttack
 from defenses.log_and_audit import LogAndAudit
+from defenses.command_authentication import CommandAuthentication
+
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -111,6 +113,7 @@ injection = FalseDataInjection(tc)
 dos = DoSAttack(tc)
 replay = ReplayAttack(tc)
 log_defense = LogAndAudit(tc)
+auth_defense = CommandAuthentication(tc)
 
 # Store logs in memory for display
 log_records = []
@@ -200,6 +203,8 @@ def toggle_defense():
     state = request.json.get('state')
     if defense_type == 'logging':
         log_defense.activate() if state else log_defense.deactivate()
+    elif defense_type == 'authentication':
+        auth.defense.activate() if state else auth_defense.deactivate()
     logger.info(f"{defense_type} defense {'activated' if state else 'deactivated'}")
     return jsonify({'status': 'success'})
 
@@ -217,6 +222,8 @@ def main():
     parser.add_argument('--anomaly', '-an', action='store_true', help='Activate anomaly detection defense')
     parser.add_argument('--authentication', '-a', action='store_true', help='Activate authentication defense')
     parser.add_argument('--ui', '-u', action='store_true', help='Run with UI')
+    parser.add_argument('--authentication1', action='store_true', help='Simulate admin command authentication')
+    parser.add_argument('--authentication2', action='store_true', help='Simulate intruder command authentication')
     
     args = parser.parse_args()
     
@@ -232,7 +239,17 @@ def main():
         replay.activate()
     if args.logging:
         log_defense.activate()
-    # Note: anomaly and authentication defenses are not implemented
+    if args.authentication or args.authentication1 or args.authentication2:
+        auth_defense.activate()    
+    if args.authentication1:
+        demo_command_authentication('admin')
+    elif args.authentication2:
+        demo_command_authentication('intruder')
+    else:
+        demo_command_authentication()
+
+   
+    # Note: anomaly defenses are not implemented
 
     if args.ui:
         # Start simulation in a separate thread
@@ -247,6 +264,19 @@ def main():
             simulation_thread()
         except KeyboardInterrupt:
             print("Stopping simulation...")
+    
+
+def demo_command_authentication(user=None):
+    print("\n--- Command Authentication Defense Demo ---")
+    if user is None:
+        users = ['admin', 'intruder']
+    else:
+        users = [user]
+    for user in users:
+        if auth_defense.authenticate_command(user):
+            print(f"User '{user}': Authorized (command allowed)")
+        else:
+            print(f"User '{user}': Unauthorized (command blocked)") 
 
 if __name__ == "__main__":
     main()
