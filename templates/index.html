@@ -147,12 +147,21 @@
             <!-- Defense Controls -->
             <div class="card p-6 mb-8">
                 <h2 class="text-2xl font-semibold mb-4 text-white">Defense Controls</h2>
-                <div class="flex items-center">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="logging_toggle">
-                        <span class="slider"></span>
-                    </label>
-                    <span class="ml-3 text-gray-200">Logging & Auditing</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="flex items-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="logging_toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ml-3 text-gray-200">Logging & Auditing</span>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="anomaly_toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="ml-3 text-gray-200">Anomaly Detection</span>
+                    </div>
                 </div>
             </div>
 
@@ -332,6 +341,7 @@
                 document.getElementById('dos_toggle').checked = data.dos_active;
                 document.getElementById('replay_toggle').checked = data.replay_active;
                 document.getElementById('logging_toggle').checked = data.logging_active;
+                document.getElementById('anomaly_toggle').checked = data.anomaly_active;
             });
 
         // Toggle attacks
@@ -356,6 +366,7 @@
         document.getElementById('dos_toggle').addEventListener('change', (e) => toggleAttack('dos', e.target));
         document.getElementById('replay_toggle').addEventListener('change', (e) => toggleAttack('replay', e.target));
         document.getElementById('logging_toggle').addEventListener('change', (e) => toggleDefense('logging', e.target));
+        document.getElementById('anomaly_toggle').addEventListener('change', (e) => toggleDefense('anomaly', e.target));
     </script>
 </body>
 </html>

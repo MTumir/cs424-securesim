@@ -8,9 +8,10 @@ class AnomalyDetection:
         self.tc = tc
         self.init_low_bound = self.tc.low_bound
 
-    def activate(self):
-        self.active = True
-
+    def defend(self):
+        if not self.active:
+            return
+        
         ## Check for change to low bound from injection attack
         current_low_bound = self.tc.low_bound
         if current_low_bound != self.init_low_bound:
@@ -18,6 +19,9 @@ class AnomalyDetection:
             logger.info(f"Reverting lower bound to: {self.init_low_bound}")
             self.tc.low_bound = self.init_low_bound
 
+    def activate(self):
+        self.active = True
+        logger.info("Anomaly detection activated")
 
     def deactivate(self):
         self.active = False
