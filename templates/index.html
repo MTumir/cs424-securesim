@@ -154,6 +154,13 @@
                     </label>
                     <span class="ml-3 text-gray-200">Logging & Auditing</span>
                 </div>
+                <div class="flex items-center">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="anomaly_toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span class="ml-3 text-gray-200">Anomaly Detection</span>
+                </div>
             </div>
 
             <!-- Log Viewer -->
@@ -332,6 +339,7 @@
                 document.getElementById('dos_toggle').checked = data.dos_active;
                 document.getElementById('replay_toggle').checked = data.replay_active;
                 document.getElementById('logging_toggle').checked = data.logging_active;
+                document.getElementById('anomaly_toggle').checked = data.anomaly_active;
             });
 
         // Toggle attacks
